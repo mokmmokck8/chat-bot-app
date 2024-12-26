@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Icon, IconButton, Text } from 'react-native-paper';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -77,7 +77,12 @@ const ChatBot = () => {
 
                 {isSelectedFile && (
                     <>
-                        <Link href={{ pathname: '/step2', params: { selectedImage } }}>
+                        <Link
+                            href={{
+                                pathname: '/Step2',
+                                params: { selectedImage, selectedPdfDetail: JSON.stringify(selectedPdfDetail) },
+                            }}
+                        >
                             <Button icon="boom-gate-up-outline" mode="contained">
                                 Train model
                             </Button>

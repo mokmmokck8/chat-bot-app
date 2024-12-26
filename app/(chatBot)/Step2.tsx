@@ -1,11 +1,14 @@
+import { sleep } from '@/utils/sleep';
+import axios from 'axios';
 import { useNavigation, useLocalSearchParams, Link } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
+import { isEmpty } from 'lodash';
+import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, StyleSheet, View, Animated, Dimensions, Easing } from 'react-native';
 import { IconButton, Text, Icon, useTheme, Button } from 'react-native-paper';
 
 const Step2 = () => {
-    const { goBack } = useNavigation();
-    const { selectedImage } = useLocalSearchParams() as { selectedImage: string };
+    const navigator = useNavigation();
+    const { selectedImage, selectedPdfDetail } = useLocalSearchParams();
     const theme = useTheme();
 
     const position = useRef(new Animated.Value(0)).current;
@@ -42,11 +45,31 @@ const Step2 = () => {
         ],
     };
 
+    const trainingModal = async () => {
+        if (!isEmpty(selectedPdfDetail)) {
+            const file = JSON.parse(selectedPdfDetail as string);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            await sleep(3000);
+            // await axios.post('https://your-api-url.com/upload', formData, {
+            //     headers: {
+            //         'Content-Type': 'multipart/form-data',
+            //     },
+            // });
+            navigator.navigate('Step3');
+        }
+    };
+    useEffect(() => {
+        trainingModal();
+    }, [selectedPdfDetail]);
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <IconButton icon="chevron-left" size={30} onPress={goBack} />
+            <IconButton icon="chevron-left" size={30} onPress={navigator.goBack} />
+
             <View style={styles.container}>
-                <View style={styles.step1Paragraph}>
+                <View style={styles.paragraph}>
                     <Text variant="headlineMedium">Step 2</Text>
                     <Text>Training LLM. Please wait...</Text>
                 </View>
@@ -56,11 +79,13 @@ const Step2 = () => {
                     <Icon color={theme.colors.primary} source="truck-fast" size={40} />
                 </Animated.View>
             </View>
-            <View style={styles.container}>
-                <Link href={{ pathname: '/step3', params: { selectedImage } }}>
-                    <Button mode="contained">Finish</Button>
+            {/* <View style={styles.container}>
+                <Link href={{ pathname: '/Step3', params: { selectedImage } }}>
+                <Button mode="contained" onPress={trainingModal}>
+                    Start Training
+                </Button>
                 </Link>
-            </View>
+            </View> */}
         </SafeAreaView>
     );
 };
@@ -71,7 +96,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 30,
     },
-    step1Paragraph: {
+    paragraph: {
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20,

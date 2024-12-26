@@ -8,7 +8,9 @@ export default function ChatBotLayout() {
             }}
         >
             <Stack.Screen name="index" />
-            <Stack.Screen name="step2" />
+            <Stack.Screen name="Step2" />
+            <Stack.Screen name="Step3" />
+            <Stack.Screen name="Chat" />
         </Stack>
     );
 }
