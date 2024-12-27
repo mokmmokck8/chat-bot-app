@@ -1,10 +1,11 @@
 import { sleep } from '@/utils/sleep';
 import axios from 'axios';
-import { useNavigation, useLocalSearchParams, Link } from 'expo-router';
-import { isEmpty } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import { DocumentPickerAsset } from 'expo-document-picker';
+import { useNavigation, useLocalSearchParams } from 'expo-router';
+import { head, isEmpty } from 'lodash';
+import React, { useEffect, useRef } from 'react';
 import { SafeAreaView, StyleSheet, View, Animated, Dimensions, Easing } from 'react-native';
-import { IconButton, Text, Icon, useTheme, Button } from 'react-native-paper';
+import { IconButton, Text, Icon, useTheme } from 'react-native-paper';
 
 const Step2 = () => {
     const navigator = useNavigation();
@@ -47,9 +48,9 @@ const Step2 = () => {
 
     const trainingModal = async () => {
         if (!isEmpty(selectedPdfDetail)) {
-            const file = JSON.parse(selectedPdfDetail as string);
+            const files = JSON.parse(selectedPdfDetail as string) as DocumentPickerAsset[];
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', files); // might need to turn to blob
 
             await sleep(3000);
             // await axios.post('https://your-api-url.com/upload', formData, {

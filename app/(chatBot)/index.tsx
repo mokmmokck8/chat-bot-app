@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Icon, IconButton, Text } from 'react-native-paper';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ const ChatBot = () => {
     const { goBack } = useNavigation();
 
     const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-    const [selectedPdfDetail, setSelectedPdfDetail] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+    const [selectedPdfAssetList, setSelectedPdfAssetList] = useState<DocumentPicker.DocumentPickerAsset[] | null>(null);
 
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -28,19 +28,19 @@ const ChatBot = () => {
 
     const pickFileAsync = async () => {
         try {
-            const pdfDetail = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
-            setSelectedPdfDetail(head(pdfDetail.assets)!);
+            const pdfDetail = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', multiple: true });
+            setSelectedPdfAssetList(pdfDetail.assets);
         } catch (err: unknown) {
             // see error handling
         }
     };
 
     const cleanSelectedFile = () => {
-        setSelectedPdfDetail(null);
+        setSelectedPdfAssetList(null);
         setSelectedImage(undefined);
     };
 
-    const hasSelectedPdfDetail = !isNil(selectedPdfDetail);
+    const hasSelectedPdfDetail = !isEmpty(selectedPdfAssetList);
     const hasSelectedImage = !isEmpty(selectedImage);
 
     const isSelectedFile = hasSelectedPdfDetail || hasSelectedImage;
@@ -67,12 +67,13 @@ const ChatBot = () => {
                         </Button>
                     </>
                 )}
-                {hasSelectedPdfDetail && (
-                    <View style={{ flexDirection: 'row', gap: 20 }}>
-                        <Icon source="file-document-outline" size={40} />
-                        <Text>{selectedPdfDetail.name}</Text>
-                    </View>
-                )}
+                {hasSelectedPdfDetail &&
+                    selectedPdfAssetList?.map((item, index) => (
+                        <View key={index} style={styles.fileItem}>
+                            <Icon source="file-document-outline" size={40} />
+                            <Text>{item.name}</Text>
+                        </View>
+                    ))}
                 {hasSelectedImage && <Image source={{ uri: selectedImage }} style={styles.image} />}
 
                 {isSelectedFile && (
@@ -80,7 +81,7 @@ const ChatBot = () => {
                         <Link
                             href={{
                                 pathname: '/Step2',
-                                params: { selectedImage, selectedPdfDetail: JSON.stringify(selectedPdfDetail) },
+                                params: { selectedImage, selectedPdfDetail: JSON.stringify(selectedPdfAssetList) },
                             }}
                         >
                             <Button icon="boom-gate-up-outline" mode="contained">
@@ -116,6 +117,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         borderRadius: 10,
     },
+    fileItem: { flexDirection: 'row', gap: 20, alignSelf: 'flex-start', paddingLeft: 20, paddingRight: 20 },
 });
 
 export default ChatBot;
